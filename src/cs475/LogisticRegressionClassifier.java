@@ -1,4 +1,4 @@
-package hw2;
+package cs475;
 
 import java.util.Iterator;
 import java.util.List;

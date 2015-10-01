@@ -5,7 +5,8 @@ import os
 
 
 if len(sys.argv) != 2: 
-    print 'usage: %s data predictions' % sys.argv[0]
+    print 'error ** usage: %s data predictions' % sys.argv[0]
+    print 'error ** please try: majority|even_odd|logistic_regression'
     sys.exit()
 
 algorithm = sys.argv[1]
@@ -30,12 +31,12 @@ dataList = ['vision/vision','nlp/nlp','speech/speech','finance/finance','bio/bio
 dataName = ['vision','nlp','speech','finance','bio','easy','hard']
 
 for data in dataList:
-	print dataName[dataList.index(data)]+':'
+	print '<'+dataName[dataList.index(data)]+'>'
 
-	cmd = 'java -cp ../lib/commons-cli-1.3.1.jar: hw2/Classify -mode train -algorithm ' + algorithm +' -model_file ../output/'+data+'.'+algorithm+'.model -data ../data/'+data+'.train'
+	cmd = 'java -cp ../lib/commons-cli-1.3.1.jar: cs475/Classify -mode train -algorithm ' + algorithm +' -model_file ../output/'+data+'.'+algorithm+'.model -data ../data/'+data+'.train'
 	os.system(cmd)
 
-	cmd = 'java -cp ../lib/commons-cli-1.3.1.jar: hw2/Classify -mode test -model_file ../output/'+data+'.'+algorithm+'.model -data ../data/'+data+'.dev -predictions_file ../output/'+data+'.dev.predictions'
+	cmd = 'java -cp ../lib/commons-cli-1.3.1.jar: cs475/Classify -mode test -model_file ../output/'+data+'.'+algorithm+'.model -data ../data/'+data+'.dev -predictions_file ../output/'+data+'.dev.predictions'
 	os.system(cmd)
 
 #print 'Accuracy: %f (%d/%d)' % ((float(match)/float(total)), match, total)

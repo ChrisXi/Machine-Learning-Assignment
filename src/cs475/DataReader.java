@@ -57,8 +57,12 @@ public class DataReader {
 				int index = Integer.parseInt(name);
 				double value = Double.parseDouble(item.split(":")[1]);
 				
+				
 				if (value != 0)
 					feature_vector.add(index, value);
+				
+				
+				
 			}
 			
 			Instance instance = new Instance(feature_vector, label);

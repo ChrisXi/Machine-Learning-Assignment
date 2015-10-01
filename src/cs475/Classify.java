@@ -37,6 +37,27 @@ public class Classify {
 	//-mode train -algorithm even_odd -model_file data/speech.even_odd.model -data data/speech/speech.train
 	//-mode test -model_file data/speech.even_odd.model -data data/speech/speech.dev -predictions_file data/speech.dev.predictions
 
+	/*----logistic regression ----*/
+	//-mode train -algorithm logistic_regression -model_file data/speech.logistic_regression.model -data data/speech/speech.train
+	//-mode test -model_file data/speech.logistic_regression.model -data data/speech/speech.dev -predictions_file data/speech.dev.predictions
+	
+	//-mode train -algorithm logistic_regression -model_file data/vision.logistic_regression.model -data data/vision/vision.train
+	//-mode test -model_file data/vision.logistic_regression.model -data data/vision/vision.dev -predictions_file data/vision.dev.predictions
+	
+	//-mode train -algorithm logistic_regression -model_file data/nlp.logistic_regression.model -data data/nlp/nlp.train
+	//-mode test -model_file data/nlp.logistic_regression.model -data data/nlp/nlp.dev -predictions_file data/nlp.dev.predictions
+	
+	//-mode train -algorithm logistic_regression -model_file data/finance.logistic_regression.model -data data/finance/finance.train
+	//-mode test -model_file data/finance.logistic_regression.model -data data/finance/finance.dev -predictions_file data/finance.dev.predictions
+	
+	//-mode train -algorithm logistic_regression -model_file data/bio.logistic_regression.model -data data/bio/bio.train
+	//-mode test -model_file data/bio.logistic_regression.model -data data/bio/bio.dev -predictions_file data/bio.dev.predictions
+	
+	//-mode train -algorithm logistic_regression -model_file data/easy.logistic_regression.model -data data/synthetic/easy.train
+	//-mode test -model_file data/easy.logistic_regression.model -data data/synthetic/easy.dev -predictions_file data/easy.dev.predictions
+	
+	//-mode train -algorithm logistic_regression -model_file data/hard.logistic_regression.model -data data/synthetic/hard.train
+	//-mode test -model_file data/hard.logistic_regression.model -data data/synthetic/hard.dev -predictions_file data/hard.dev.predictions
 	
 	public static void main(String[] args) throws IOException {
 		// Parse the command line.
@@ -121,8 +142,43 @@ public class Classify {
 				}
 				sum ++;
 			}
+
 			double precent = (double)correct/(double)sum;
 			System.out.println("Evaluate the model: "+precent);
+			return classifier;
+		} else if(algorithm.equals("logistic_regression")) {
+			//TODO: confirm the size of 'featureNum'
+			//regression parameter
+			int sgd_iterations = 20;
+			if(CommandLineUtilities.hasArg("sgd_iterations")) 
+				sgd_iterations = CommandLineUtilities.getOptionValueAsInt("sgd_iterations");
+			
+			double sgd_eta0 = 0.01;
+			if(CommandLineUtilities.hasArg("sgd_eta0")) 
+				sgd_eta0 = CommandLineUtilities.getOptionValueAsInt("sgd_eta0");
+			
+			classifier = new LogisticRegressionClassifier(instances, sgd_iterations, sgd_eta0);
+			classifier.train(instances);
+			
+			int correct = 0;
+			int sum = 0;
+			int index = 1;
+			for (Instance instance : instances) {
+				
+				Label label = classifier.predict(instance);
+				Label originalLabel = instance._label;
+				
+				if(originalLabel != null && (label.toString()).equals(originalLabel.toString())) {
+					correct ++;
+				}
+				sum ++;
+				index ++;
+			}
+//			System.out.println("sum:"+sum+" correct:"+correct);
+			float precent = (float)correct/(float)sum;
+			if(correct != 0)
+				System.out.println("train: Evaluate the model: "+precent);
+			
 			return classifier;
 		}
 
@@ -136,20 +192,24 @@ public class Classify {
 		
 		int correct = 0;
 		int sum = 0;
+		int index = 1;
 		for (Instance instance : instances) {
+			
 			Label label = predictor.predict(instance);
 			Label originalLabel = instance._label;
+			
 			if(originalLabel != null && (label.toString()).equals(originalLabel.toString())) {
 				correct ++;
-			}
+			} 
 			sum ++;
 			writer.writePrediction(label);
+			index ++;
 		}
 //		System.out.println("sum:"+sum+" correct:"+correct);
 		float precent = (float)correct/(float)sum;
 		
 		if(correct != 0)
-			System.out.println("Evaluate the model: "+precent);
+			System.out.println("test: Evaluate the model: "+precent);
 		
 		writer.close();
 		
@@ -205,5 +265,7 @@ public class Classify {
 		registerOption("model_file", "String", true, "The name of the model file to create/load.");
 		
 		// Other options will be added here.
+		registerOption("sgd_eta0", "double", true, "The constant scalar for learning rate in AdaGrad.");
+		registerOption("sgd_iterations", "int", true, "The number of SGD iterations");
 	}
 }
